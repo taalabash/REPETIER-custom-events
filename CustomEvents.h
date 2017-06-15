@@ -25,14 +25,14 @@
 #define CustomEvents_H
 
 extern bool Custom_GCode(GCode *com);
-extern bool Custom_MCode(GCode *com); 
+extern bool Custom_MCode(GCode *com);
 
 
 
 
 #define epr_memoryX1        400
-#define epr_memoryY1        401
-#define epr_memoryZ1        402
+#define epr_memoryY1        404
+#define epr_memoryZ1        408
 
 
 
