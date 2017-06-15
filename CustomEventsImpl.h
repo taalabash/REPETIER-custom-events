@@ -73,11 +73,11 @@ bool Custom_MCode(GCode *com)
           HAL::eprSetFloat(epr_memoryY1,memoryY1);
           HAL::eprSetFloat(epr_memoryZ1,memoryZ1);
 
-          Com::printF(PSTR("Saved to position 1: X:"),HAL::eprGetFloat(memoryX1));
+          Com::printF(PSTR("Ram Saved to position 1: X:"),HAL::eprGetFloat(memoryX1));
           Com::printF(PSTR("  Y:"),HAL::eprGetFloat(memoryY1));
           Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(memoryZ1));   
           
-          Com::printF(PSTR("Saved to position 1: X:"),HAL::eprGetFloat(epr_memoryX1));
+          Com::printF(PSTR("EEPROM Saved to position 1: X:"),HAL::eprGetFloat(epr_memoryX1));
           Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY1));
           Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ1));   
         
