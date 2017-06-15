@@ -97,9 +97,9 @@ bool Custom_MCode(GCode *com)
        if(com->hasP()){
         switch(com->P){
          case 1:
-            Com::config(PSTR("MEMORY X1:"),HAL::eprGetFloat(epr_memoryX1));
-            Com::config(PSTR("MEMORY Y1:"),HAL::eprGetFloat(epr_memoryY1));
-            Com::config(PSTR("MEMORY Z1:"),HAL::eprGetFloat(epr_memoryZ1));
+            Com::printF(PSTR("Position 1: X1:"),HAL::eprGetFloat(epr_memoryX1));
+            Com::printF(PSTR("  Y1:"),HAL::eprGetFloat(epr_memoryY1));
+            Com::printFLN(PSTR("  Z1:"),HAL::eprGetFloat(epr_memoryZ1));
 
          break;
 
@@ -117,7 +117,11 @@ bool Custom_MCode(GCode *com)
         switch(com->P){
          case 1:
          
-            Printer::moveToReal(HAL::eprGetFloat(epr_memoryX1),HAL::eprGetFloat(epr_memoryY1),HAL::eprGetFloat(epr_memoryZ1),IGNORE_COORDINATE,(com->hasF() ? com->F : Printer::feedrate));
+            Printer::moveToReal(HAL::eprGetFloat(epr_memoryX1)
+                                ,HAL::eprGetFloat(epr_memoryY1)
+                                ,HAL::eprGetFloat(epr_memoryZ1)
+                                ,IGNORE_COORDINATE
+                                ,(com->hasF() ? com->F : Printer::feedrate));
 
          break;
 
