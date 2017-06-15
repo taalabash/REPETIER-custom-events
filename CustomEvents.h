@@ -18,7 +18,7 @@
     by kliment (https://github.com/kliment/Sprinter)
     which based on Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
 
-    author of this additional File : RAyWB / Robert Ayrenschmalz
+    author of this additional File : ASH / Elias Taalab
 
 */
 #ifndef CustomEvents_H
@@ -30,25 +30,25 @@ extern bool Custom_MCode(GCode *com);
 
 
 
-#define epr_memoryX1        400
-#define epr_memoryY1        404
-#define epr_memoryZ1        408
+#define epr_memoryX1        1200
+#define epr_memoryY1        1204
+#define epr_memoryZ1        1208
 
-#define epr_memoryX2        412
-#define epr_memoryY2        416
-#define epr_memoryZ2        420
+#define epr_memoryX2        1212
+#define epr_memoryY2        1216
+#define epr_memoryZ2        1220
 
-#define epr_memoryX3        424
-#define epr_memoryY3        428
-#define epr_memoryZ3        432
+#define epr_memoryX3        1224
+#define epr_memoryY3        1228
+#define epr_memoryZ3        1232
 
 
 
 
 
 //G and M code replacements and /or additional
-//#undef EVENT_UNHANDLED_G_CODE(c)
-//#define EVENT_UNHANDLED_G_CODE(c) Custom_GCode(c)
+#undef EVENT_UNHANDLED_G_CODE(c)
+#define EVENT_UNHANDLED_G_CODE(c) Custom_GCode(c)
 
 #undef EVENT_UNHANDLED_M_CODE(c)
 #define EVENT_UNHANDLED_M_CODE(c) Custom_MCode(c)
