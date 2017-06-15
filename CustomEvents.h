@@ -34,6 +34,14 @@ extern bool Custom_MCode(GCode *com);
 #define epr_memoryY1        404
 #define epr_memoryZ1        408
 
+#define epr_memoryX2        412
+#define epr_memoryY2        416
+#define epr_memoryZ2        420
+
+#define epr_memoryX3        424
+#define epr_memoryY3        428
+#define epr_memoryZ3        432
+
 
 
 

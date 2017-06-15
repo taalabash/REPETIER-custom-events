@@ -50,6 +50,14 @@ float memoryX1 = IGNORE_COORDINATE;
 float memoryY1 = IGNORE_COORDINATE;
 float memoryZ1 = IGNORE_COORDINATE;
 
+float memoryX2 = IGNORE_COORDINATE;
+float memoryY2 = IGNORE_COORDINATE;
+float memoryZ2 = IGNORE_COORDINATE;
+
+float memoryX3 = IGNORE_COORDINATE;
+float memoryY3 = IGNORE_COORDINATE;
+float memoryZ3 = IGNORE_COORDINATE;
+
 
 
 
@@ -72,14 +80,40 @@ bool Custom_MCode(GCode *com)
           HAL::eprSetFloat(epr_memoryX1,memoryX1);
           HAL::eprSetFloat(epr_memoryY1,memoryY1);
           HAL::eprSetFloat(epr_memoryZ1,memoryZ1);
-
-          Com::printF(PSTR("Ram Saved to position 1: X:"),HAL::eprGetFloat(memoryX1));
-          Com::printF(PSTR("  Y:"),HAL::eprGetFloat(memoryY1));
-          Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(memoryZ1));   
-          
+                
           Com::printF(PSTR("EEPROM Saved to position 1: X:"),HAL::eprGetFloat(epr_memoryX1));
           Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY1));
           Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ1));   
+        
+         break;
+
+         case 2:
+          Commands::waitUntilEndOfAllMoves();
+          Printer::updateCurrentPosition(false);
+          Printer::realPosition(memoryX2, memoryY2, memoryZ2);
+
+          HAL::eprSetFloat(epr_memoryX2,memoryX2);
+          HAL::eprSetFloat(epr_memoryY2,memoryY2);
+          HAL::eprSetFloat(epr_memoryZ2,memoryZ2);
+                
+          Com::printF(PSTR("EEPROM Saved to position 2: X:"),HAL::eprGetFloat(epr_memoryX2));
+          Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY2));
+          Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ2));   
+        
+         break;
+
+         case 3:
+          Commands::waitUntilEndOfAllMoves();
+          Printer::updateCurrentPosition(false);
+          Printer::realPosition(memoryX3, memoryY3, memoryZ3);
+
+          HAL::eprSetFloat(epr_memoryX3,memoryX3);
+          HAL::eprSetFloat(epr_memoryY3,memoryY3);
+          HAL::eprSetFloat(epr_memoryZ3,memoryZ3);
+                
+          Com::printF(PSTR("EEPROM Saved to position 3: X:"),HAL::eprGetFloat(epr_memoryX3));
+          Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY3));
+          Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ3));   
         
          break;
 
@@ -97,9 +131,23 @@ bool Custom_MCode(GCode *com)
        if(com->hasP()){
         switch(com->P){
          case 1:
-            Com::printF(PSTR("Position 1: X1:"),HAL::eprGetFloat(epr_memoryX1));
-            Com::printF(PSTR("  Y1:"),HAL::eprGetFloat(epr_memoryY1));
-            Com::printFLN(PSTR("  Z1:"),HAL::eprGetFloat(epr_memoryZ1));
+            Com::printF(PSTR("Position 1: X:"),HAL::eprGetFloat(epr_memoryX1));
+            Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY1));
+            Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ1));
+
+         break;
+
+         case 2:
+            Com::printF(PSTR("Position 2: X:"),HAL::eprGetFloat(epr_memoryX2));
+            Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY2));
+            Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ2));
+
+         break;
+
+         case 3:
+            Com::printF(PSTR("Position 3: X:"),HAL::eprGetFloat(epr_memoryX3));
+            Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY3));
+            Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ3));
 
          break;
 
@@ -125,11 +173,35 @@ bool Custom_MCode(GCode *com)
 
          break;
 
+         case 2:
+         
+            Printer::moveToReal(HAL::eprGetFloat(epr_memoryX2)
+                                ,HAL::eprGetFloat(epr_memoryY2)
+                                ,HAL::eprGetFloat(epr_memoryZ2)
+                                ,IGNORE_COORDINATE
+                                ,(com->hasF() ? com->F : Printer::feedrate));
+
+         break;
+
+         case 3:
+         
+            Printer::moveToReal(HAL::eprGetFloat(epr_memoryX3)
+                                ,HAL::eprGetFloat(epr_memoryY3)
+                                ,HAL::eprGetFloat(epr_memoryZ3)
+                                ,IGNORE_COORDINATE
+                                ,(com->hasF() ? com->F : Printer::feedrate));
+
+         break;
+
             }
          }
          #else Com::printErrorF(Com::tNoEEPROMSupport);
          #endif
       break;  //end 482
+
+
+
+
   
   default:
      return false;
