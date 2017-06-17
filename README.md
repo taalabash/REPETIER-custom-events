@@ -8,4 +8,4 @@ New M-codes:
 
 -M481 P(1.2.3) that prints the saved coordinates in position (1,2,3).
 
--M482 P(!,2,3) F(feedrate) that moves the printer to the position (1,2,3) in with a specific feedrate or the default feedrate.
+-M482 P(1,2,3) F(feedrate) that moves the printer to the position (1,2,3) with a specific feedrate or the default feedrate.
