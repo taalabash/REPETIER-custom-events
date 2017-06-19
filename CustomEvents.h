@@ -18,7 +18,7 @@
     by kliment (https://github.com/kliment/Sprinter)
     which based on Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
 
-    author of this additional File : ASH / Elias Taalab
+    author of this additional File : ASH / Elias Taalab     thanks to RAyWB
 
 */
 #ifndef CustomEvents_H
