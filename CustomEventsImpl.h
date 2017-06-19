@@ -46,20 +46,7 @@
 //#########################################################################################
 //#### MCode addition/replacement
 //#########################################################################################
-float memoryX1 = IGNORE_COORDINATE;
-float memoryY1 = IGNORE_COORDINATE;
-float memoryZ1 = IGNORE_COORDINATE;
 
-
-float memoryX2 = IGNORE_COORDINATE;
-float memoryY2 = IGNORE_COORDINATE;
-float memoryZ2 = IGNORE_COORDINATE;
-
-float memoryX3 = IGNORE_COORDINATE;
-float memoryY3 = IGNORE_COORDINATE;
-float memoryZ3 = IGNORE_COORDINATE;
-
-float offsetX,offsetY,offsetZ =0;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,19 +65,14 @@ bool Custom_MCode(GCode *com)
 		     case 1:
           Commands::waitUntilEndOfAllMoves();
           Printer::updateCurrentPosition(false);
-          Printer::realPosition(memoryX1, memoryY1, memoryZ1);            //store current position to ram
 
-          offsetX = Printer::coordinateOffset[X_AXIS];                  // store current offset values to ram
-          offsetY = Printer::coordinateOffset[Y_AXIS];
-          offsetZ = Printer::coordinateOffset[Z_AXIS];
+          HAL::eprSetFloat(epr_memoryX1,Printer::realXPosition());                   //store position from ram to eeprom
+          HAL::eprSetFloat(epr_memoryY1,Printer::realYPosition());
+          HAL::eprSetFloat(epr_memoryZ1,Printer::realZPosition());
 
-          HAL::eprSetFloat(epr_memoryX1,memoryX1);                   //store position from ram to eeprom
-          HAL::eprSetFloat(epr_memoryY1,memoryY1);
-          HAL::eprSetFloat(epr_memoryZ1,memoryZ1);
-
-          HAL::eprSetFloat(epr_offsetX1,offsetX);                   //store offset values from ram to eeprom
-          HAL::eprSetFloat(epr_offsetY1,offsetY);
-          HAL::eprSetFloat(epr_offsetZ1,offsetZ);
+          HAL::eprSetFloat(epr_offsetX1,Printer::coordinateOffset[X_AXIS]);                   //store offset values from ram to eeprom
+          HAL::eprSetFloat(epr_offsetY1,Printer::coordinateOffset[Y_AXIS]);
+          HAL::eprSetFloat(epr_offsetZ1,Printer::coordinateOffset[Z_AXIS]);
 
           Com::printF(PSTR("EEPROM Saved to position 1: X:"),HAL::eprGetFloat(epr_memoryX1));     //print some messages
           Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY1));
@@ -105,19 +87,14 @@ bool Custom_MCode(GCode *com)
          case 2:
           Commands::waitUntilEndOfAllMoves();
           Printer::updateCurrentPosition(false);
-          Printer::realPosition(memoryX2, memoryY2, memoryZ2);
 
-          offsetX = Printer::coordinateOffset[X_AXIS];                  // store current offset values to ram
-          offsetY = Printer::coordinateOffset[Y_AXIS];
-          offsetZ = Printer::coordinateOffset[Z_AXIS];
+          HAL::eprSetFloat(epr_memoryX2,Printer::realXPosition());                   //store position from ram to eeprom
+          HAL::eprSetFloat(epr_memoryY2,Printer::realYPosition());
+          HAL::eprSetFloat(epr_memoryZ2,Printer::realZPosition());
 
-          HAL::eprSetFloat(epr_memoryX2,memoryX2);
-          HAL::eprSetFloat(epr_memoryY2,memoryY2);
-          HAL::eprSetFloat(epr_memoryZ2,memoryZ2);
-
-          HAL::eprSetFloat(epr_offsetX2,offsetX);                   //store offset values from ram to eeprom
-          HAL::eprSetFloat(epr_offsetY2,offsetY);
-          HAL::eprSetFloat(epr_offsetZ2,offsetZ);
+          HAL::eprSetFloat(epr_offsetX2,Printer::coordinateOffset[X_AXIS]);                   //store offset values from ram to eeprom
+          HAL::eprSetFloat(epr_offsetY2,Printer::coordinateOffset[Y_AXIS]);
+          HAL::eprSetFloat(epr_offsetZ2,Printer::coordinateOffset[Z_AXIS]);
 
 
           Com::printF(PSTR("EEPROM Saved to position 2: X:"),HAL::eprGetFloat(epr_memoryX2));
@@ -133,25 +110,20 @@ bool Custom_MCode(GCode *com)
          case 3:
           Commands::waitUntilEndOfAllMoves();
           Printer::updateCurrentPosition(false);
-          Printer::realPosition(memoryX3, memoryY3, memoryZ3);
 
-          offsetX = Printer::coordinateOffset[X_AXIS];                  // store current offset values to ram
-          offsetY = Printer::coordinateOffset[Y_AXIS];
-          offsetZ = Printer::coordinateOffset[Z_AXIS];
+          HAL::eprSetFloat(epr_memoryX3,Printer::realXPosition());                   //store position from ram to eeprom
+          HAL::eprSetFloat(epr_memoryY3,Printer::realYPosition());
+          HAL::eprSetFloat(epr_memoryZ3,Printer::realZPosition());
 
-          HAL::eprSetFloat(epr_memoryX3,memoryX3);
-          HAL::eprSetFloat(epr_memoryY3,memoryY3);
-          HAL::eprSetFloat(epr_memoryZ3,memoryZ3);
-
-          HAL::eprSetFloat(epr_offsetX3,offsetX);                   //store offset values from ram to eeprom
-          HAL::eprSetFloat(epr_offsetY3,offsetY);
-          HAL::eprSetFloat(epr_offsetZ3,offsetZ);
+          HAL::eprSetFloat(epr_offsetX3,Printer::coordinateOffset[X_AXIS]);                   //store offset values from ram to eeprom
+          HAL::eprSetFloat(epr_offsetY3,Printer::coordinateOffset[Y_AXIS]);
+          HAL::eprSetFloat(epr_offsetZ3,Printer::coordinateOffset[Z_AXIS]);
 
 
           Com::printF(PSTR("EEPROM Saved to position 3: X:"),HAL::eprGetFloat(epr_memoryX3));
           Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_memoryY3));
           Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_memoryZ3));
-          
+
           Com::printF(PSTR("Saved Offset 3: X:"),HAL::eprGetFloat(epr_offsetX3));
           Com::printF(PSTR("  Y:"),HAL::eprGetFloat(epr_offsetY3));
           Com::printFLN(PSTR("  Z:"),HAL::eprGetFloat(epr_offsetZ3));
