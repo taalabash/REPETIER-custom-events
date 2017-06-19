@@ -28,23 +28,37 @@ extern bool Custom_GCode(GCode *com);
 extern bool Custom_MCode(GCode *com);
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// EEPROM POSITIONS //////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+#define epr_memoryX1                1200
+#define epr_memoryY1                1204
+#define epr_memoryZ1                1208
+
+#define epr_memoryX2                1212
+#define epr_memoryY2                1216
+#define epr_memoryZ2                1220
+
+#define epr_memoryX3                1224
+#define epr_memoryY3                1228
+#define epr_memoryZ3                1232
+
+#define epr_offsetX1                1236
+#define epr_offsetY1                1240
+#define epr_offsetZ1                1244
+
+#define epr_offsetX2                1248
+#define epr_offsetY2                1252
+#define epr_offsetZ2                1256
+
+#define epr_offsetX3                1260
+#define epr_offsetY3                1264
+#define epr_offsetZ3                1268
 
 
-#define epr_memoryX1        1200
-#define epr_memoryY1        1204
-#define epr_memoryZ1        1208
-
-#define epr_memoryX2        1212
-#define epr_memoryY2        1216
-#define epr_memoryZ2        1220
-
-#define epr_memoryX3        1224
-#define epr_memoryY3        1228
-#define epr_memoryZ3        1232
 
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////
 
 //G and M code replacements and /or additional
 #undef EVENT_UNHANDLED_G_CODE(c)
