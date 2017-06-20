@@ -21,6 +21,12 @@
     author of this additional File : ASH / Elias Taalab     thanks to RAyWB
 
 */
+
+
+
+
+
+
 #ifndef CustomEventsImpl_H
 #define CustomEventsImpl_H
 
@@ -251,6 +257,75 @@ bool Custom_MCode(GCode *com)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+void Custom_100MS(){
+  Emergency_PowerOff_loop();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void Emergency_PowerOff_loop()                               // should run each 100MS
+{if (digitalRead(EmergencyOff_PIN)==Emergency_Trigger_on) {  //if power off triggerd (pin set to low)
+  if (sd.sdactive) {                                 //if printing from sd
+    Printer::kill(false);                //kill all ("false" mean kill all not only steppers)
+
+    HAL::eprSetFloat(epr_BackupFeedrate,Printer::feedrate);                          //backup all variables
+    HAL::eprSetInt32(epr_BackupSDposition,sd.sdpos);
+    HAL::eprSetFloat(epr_BackupExId,Extruder::current->id);
+    HAL::eprSetFloat(epr_BackupTemp,Extruder::current->tempControl.targetTemperatureC);
+    HAL::eprSetFloat(epr_BackupTempB,heatedBedController.targetTemperatureC);
+
+
+    HAL::eprSetFloat(epr_Backup_OffsetX,Printer::coordinateOffset[X_AXIS]);                   //backup offset values to eeprom
+    HAL::eprSetFloat(epr_Backup_OffsetY,Printer::coordinateOffset[Y_AXIS]);
+    HAL::eprSetFloat(epr_Backup_OffsetZ,Printer::coordinateOffset[Z_AXIS]);
+
+    for(int i=0;i<=21;i++)                                   //backup selected sd filename
+    {HAL::eprSetByte(epr_BackupSDfilename+i,Printer::printName[i]);}
+
+    HAL::eprSetByte(epr_EmergencyByte,1);     //set emergency byte to 1
+    }
+  else HAL::eprSetByte(epr_EmergencyByte,0);           // if the printer is not printing just set emergency byte to 0
+  }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Custom_INTIALIZE(){
+  pinMode(EmergencyOff_PIN,OUTPUT);
+  Emergency_Restore_IfNeeded();
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+void Emergency_Restore_IfNeeded(){                     //restore print if needed //should run on start
+
+  if(HAL::eprGetByte(epr_EmergencyByte)==1){                         //if emergency powered off detected
+
+      for(int i=0;i<=21;i++)                                                  //restore sd file name
+      {Printer::printName[i]=HAL::eprGetByte(epr_BackupSDfilename+i);}
+
+      sd.setIndex(HAL::eprGetInt32(epr_BackupSDposition));                                      // restore other variables
+
+      Printer::feedrate=HAL::eprGetFloat(epr_BackupFeedrate);
+      Extruder::current->id=HAL::eprGetFloat(epr_BackupExId);
+      previousMillisCmd=HAL::timeInMilliseconds();
+
+      Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetX);                       //restore offset values
+      Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetY);
+      Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetZ);
+
+
+      Extruder::setTemperatureForExtruder(HAL::eprGetFloat(epr_BackupTemp),HAL::eprGetFloat(epr_BackupExId),0,true);
+      Extruder::setHeatedBedTemperature(HAL::eprGetFloat(epr_BackupTempB),0);
+      GCode::executeFString(PSTR("G28"));                                   //after all heated home the printer
+
+      HAL::eprSetByte(epr_EmergencyByte,0);                            // set emergency byte to 0
+
+      Printer::setMenuMode(MENU_MODE_PAUSED+MENU_MODE_SD_PRINTING,true);    //set the printer as it is printing and paused to enable the continue option in the menu
+
+  }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
