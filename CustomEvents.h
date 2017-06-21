@@ -26,7 +26,7 @@
 
 
 
-#define EmergencyOff_PIN     68     //digital input pin
+#define EmergencyOff_PIN     69     //digital input pin
 #define Emergency_Trigger_on      0    //low or high
 
 
@@ -71,10 +71,12 @@ extern void Emergency_Restore_IfNeeded();
 extern void Emergency_PowerOff_loop();
 
 #undef EVENT_TIMER_100MS
-#define EVENT_TIMER_100MS{Custom_100MS();}
+#define EVENT_TIMER_100MS  {Custom_100MS();}
 
 #undef EVENT_INITIALIZE
-#define EVENT_INITIALIZE{Custom_INTIALIZE();}
+#define EVENT_INITIALIZE  {Custom_INTIALIZE();}
+
+
 
 #define epr_BackupTemp              1274
 #define epr_BackupTempB             1278

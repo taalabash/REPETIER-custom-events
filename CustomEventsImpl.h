@@ -138,7 +138,8 @@ bool Custom_MCode(GCode *com)
 
               }
          }
-         #else Com::printErrorF(Com::tNoEEPROMSupport);
+         #else
+			 Com::printErrorF(Com::tNoEEPROMSupport);
          #endif
 
     break; //end  480
@@ -185,7 +186,8 @@ bool Custom_MCode(GCode *com)
 
             }
          }
-         #else Com::printErrorF(Com::tNoEEPROMSupport);
+         #else
+			 Com::printErrorF(Com::tNoEEPROMSupport);
          #endif
 
     break;  //end 481
@@ -198,48 +200,60 @@ bool Custom_MCode(GCode *com)
          case 1:
 
             Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetX1);                       //restore offset values
-            Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetY1);
-            Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetZ1);
+            Printer::coordinateOffset[Y_AXIS]= HAL::eprGetFloat(epr_offsetY1);
+            Printer::coordinateOffset[Z_AXIS]= HAL::eprGetFloat(epr_offsetZ1);
 
             Printer::moveToReal(HAL::eprGetFloat(epr_memoryX1)                                      //move to position stored in eeprom
                                 ,HAL::eprGetFloat(epr_memoryY1)
                                 ,HAL::eprGetFloat(epr_memoryZ1)
                                 ,IGNORE_COORDINATE
                                 ,(com->hasF() ? com->F : Printer::feedrate));
+            Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];// update gcode coords
+            Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];// update gcode coords
+            Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];// update gcode coords
 
          break;
 
          case 2:
 
             Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetX2);                       //restore offset values
-            Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetY2);
-            Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetZ2);
+            Printer::coordinateOffset[Y_AXIS]= HAL::eprGetFloat(epr_offsetY2);
+            Printer::coordinateOffset[Z_AXIS]= HAL::eprGetFloat(epr_offsetZ2);
 
             Printer::moveToReal(HAL::eprGetFloat(epr_memoryX2)
                                 ,HAL::eprGetFloat(epr_memoryY2)
                                 ,HAL::eprGetFloat(epr_memoryZ2)
                                 ,IGNORE_COORDINATE
                                 ,(com->hasF() ? com->F : Printer::feedrate));
+            Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];// update gcode coords
+            Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];// update gcode coords
+            Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];// update gcode coords
+
 
          break;
 
          case 3:
 
             Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetX3);                       //restore offset values
-            Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetY3);
-            Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_offsetZ3);
+            Printer::coordinateOffset[Y_AXIS]= HAL::eprGetFloat(epr_offsetY3);
+            Printer::coordinateOffset[Z_AXIS]= HAL::eprGetFloat(epr_offsetZ3);
 
             Printer::moveToReal(HAL::eprGetFloat(epr_memoryX3)
                                 ,HAL::eprGetFloat(epr_memoryY3)
                                 ,HAL::eprGetFloat(epr_memoryZ3)
                                 ,IGNORE_COORDINATE
                                 ,(com->hasF() ? com->F : Printer::feedrate));
+            Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];// update gcode coords
+            Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];// update gcode coords
+            Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];// update gcode coords
+
 
          break;
 
             }
          }
-         #else Com::printErrorF(Com::tNoEEPROMSupport);
+         #else
+			 Com::printErrorF(Com::tNoEEPROMSupport);
          #endif
       break;  //end 482
 //-----------------------------------------------------------------------------------------------------------------------
@@ -259,41 +273,57 @@ bool Custom_MCode(GCode *com)
 
 
 void Custom_100MS(){
-  Emergency_PowerOff_loop();
-}
+  Emergency_PowerOff_loop();}
+
+void Custom_INTIALIZE(){
+  pinMode(EmergencyOff_PIN,INPUT);
+  Emergency_Restore_IfNeeded();}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void Emergency_PowerOff_loop()                               // should run each 100MS
 {if (digitalRead(EmergencyOff_PIN)==Emergency_Trigger_on) {  //if power off triggerd (pin set to low)
-  if (sd.sdactive) {                                 //if printing from sd
+
+  if(Printer::isMenuMode(MENU_MODE_SD_PRINTING)) {                                 //if printing from sd
+
+    GCode::executeFString(PSTR("M300 S1000 P200"));
+
     Printer::kill(false);                //kill all ("false" mean kill all not only steppers)
 
     HAL::eprSetFloat(epr_BackupFeedrate,Printer::feedrate);                          //backup all variables
+
     HAL::eprSetInt32(epr_BackupSDposition,sd.sdpos);
+
     HAL::eprSetFloat(epr_BackupExId,Extruder::current->id);
     HAL::eprSetFloat(epr_BackupTemp,Extruder::current->tempControl.targetTemperatureC);
+
+    #if HAVE_HEATED_BED
     HAL::eprSetFloat(epr_BackupTempB,heatedBedController.targetTemperatureC);
+    #endif
 
 
-    HAL::eprSetFloat(epr_Backup_OffsetX,Printer::coordinateOffset[X_AXIS]);                   //backup offset values to eeprom
+    HAL::eprSetFloat(epr_Backup_OffsetX,Printer::coordinateOffset[X_AXIS]);         //backup offset values to eeprom
     HAL::eprSetFloat(epr_Backup_OffsetY,Printer::coordinateOffset[Y_AXIS]);
     HAL::eprSetFloat(epr_Backup_OffsetZ,Printer::coordinateOffset[Z_AXIS]);
 
-    for(int i=0;i<=21;i++)                                   //backup selected sd filename
+    for(int i=0;i<20;i++)                                   //backup selected sd filename
     {HAL::eprSetByte(epr_BackupSDfilename+i,Printer::printName[i]);}
 
     HAL::eprSetByte(epr_EmergencyByte,1);     //set emergency byte to 1
+
+    UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_KILLED_ID));     //DISPLAY KILLED TEXT got this from emergencyStop in commands.cpp
+    HAL::delayMilliseconds(200);
+    InterruptProtectedBlock noInts;
+    while(1) {}                     //whait forever
+
     }
   else HAL::eprSetByte(epr_EmergencyByte,0);           // if the printer is not printing just set emergency byte to 0
   }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Custom_INTIALIZE(){
-  pinMode(EmergencyOff_PIN,OUTPUT);
-  Emergency_Restore_IfNeeded();
 
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,27 +331,47 @@ void Emergency_Restore_IfNeeded(){                     //restore print if needed
 
   if(HAL::eprGetByte(epr_EmergencyByte)==1){                         //if emergency powered off detected
 
-      for(int i=0;i<=21;i++)                                                  //restore sd file name
-      {Printer::printName[i]=HAL::eprGetByte(epr_BackupSDfilename+i);}
 
-      sd.setIndex(HAL::eprGetInt32(epr_BackupSDposition));                                      // restore other variables
+      GCode::executeFString(PSTR("G28"));                                   //first home the printer
 
       Printer::feedrate=HAL::eprGetFloat(epr_BackupFeedrate);
       Extruder::current->id=HAL::eprGetFloat(epr_BackupExId);
       previousMillisCmd=HAL::timeInMilliseconds();
 
       Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetX);                       //restore offset values
-      Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetY);
-      Printer::coordinateOffset[X_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetZ);
+      Printer::coordinateOffset[Y_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetY);
+      Printer::coordinateOffset[Z_AXIS]= HAL::eprGetFloat(epr_Backup_OffsetZ);
+
+      float Xoffset=HAL::eprGetFloat(epr_Backup_OffsetX);
+      float Yoffset=HAL::eprGetFloat(epr_Backup_OffsetY);
+      float Zoffset=HAL::eprGetFloat(epr_Backup_OffsetZ);
+
+      Printer::moveToReal(X_HOME_DIR>0 ? Xoffset+Printer::xLength : Xoffset
+                        , Y_HOME_DIR>0 ? Yoffset+Printer::yLength : Yoffset
+                        , Z_HOME_DIR>0 ? Zoffset+Printer::zLength : Zoffset
+                        , IGNORE_COORDINATE, Printer::feedrate);
+
+      Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];// update gcode coords to startheight;
+      Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];// update gcode coords to startheight;
+      Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];// update gcode coords to startheight;
 
 
       Extruder::setTemperatureForExtruder(HAL::eprGetFloat(epr_BackupTemp),HAL::eprGetFloat(epr_BackupExId),0,true);
+
+      #if HAVE_HEATED_BED
       Extruder::setHeatedBedTemperature(HAL::eprGetFloat(epr_BackupTempB),0);
-      GCode::executeFString(PSTR("G28"));                                   //after all heated home the printer
+      #endif
+
+      for(int i=0;i<20;i++)                                                  //restore sd file name
+      {Printer::printName[i]=HAL::eprGetByte(epr_BackupSDfilename+i);}
+
+      sd.setIndex(HAL::eprGetInt32(epr_BackupSDposition));                                      // restore other variables
 
       HAL::eprSetByte(epr_EmergencyByte,0);                            // set emergency byte to 0
 
       Printer::setMenuMode(MENU_MODE_PAUSED+MENU_MODE_SD_PRINTING,true);    //set the printer as it is printing and paused to enable the continue option in the menu
+
+
 
   }
 }
