@@ -289,7 +289,6 @@ void Emergency_PowerOff_loop()                               // should run each 
 
     GCode::executeFString(PSTR("M300 S1000 P200"));
 
-    Printer::kill(false);                //kill all ("false" mean kill all not only steppers)
 
     HAL::eprSetFloat(epr_BackupFeedrate,Printer::feedrate);                          //backup all variables
 
@@ -307,10 +306,18 @@ void Emergency_PowerOff_loop()                               // should run each 
     HAL::eprSetFloat(epr_Backup_OffsetY,Printer::coordinateOffset[Y_AXIS]);
     HAL::eprSetFloat(epr_Backup_OffsetZ,Printer::coordinateOffset[Z_AXIS]);
 
+
+    HAL::eprSetFloat(epr_Backup_MEMX,Printer::lastCmdPos[X_AXIS]);          //backup last commands values to eeprom
+    HAL::eprSetFloat(epr_Backup_MEMY,Printer::lastCmdPos[Y_AXIS]);
+    HAL::eprSetFloat(epr_Backup_MEMZ,Printer::lastCmdPos[Z_AXIS]);
+
+
     for(int i=0;i<20;i++)                                   //backup selected sd filename
     {HAL::eprSetByte(epr_BackupSDfilename+i,Printer::printName[i]);}
 
     HAL::eprSetByte(epr_EmergencyByte,1);     //set emergency byte to 1
+
+    //Printer::kill(true);                //kill all ("false" mean kill all not only steppers)
 
     UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_KILLED_ID));     //DISPLAY KILLED TEXT got this from emergencyStop in commands.cpp
     HAL::delayMilliseconds(200);
@@ -331,6 +338,12 @@ void Emergency_Restore_IfNeeded(){                     //restore print if needed
 
   if(HAL::eprGetByte(epr_EmergencyByte)==1){                         //if emergency powered off detected
 
+      sd.mount();                                            //mount sd card
+      char filename[20];
+      for(int i=0;i<20;i++)                                                  //restore sd file name
+      {filename[i]=HAL::eprGetByte(epr_BackupSDfilename+i);}
+      sd.selectFile(filename);
+      sd.setIndex(HAL::eprGetInt32(epr_BackupSDposition));                                      // restore other variables
 
       GCode::executeFString(PSTR("G28"));                                   //first home the printer
 
@@ -346,14 +359,6 @@ void Emergency_Restore_IfNeeded(){                     //restore print if needed
       float Yoffset=HAL::eprGetFloat(epr_Backup_OffsetY);
       float Zoffset=HAL::eprGetFloat(epr_Backup_OffsetZ);
 
-      Printer::moveToReal(X_HOME_DIR>0 ? Xoffset+Printer::xLength : Xoffset
-                        , Y_HOME_DIR>0 ? Yoffset+Printer::yLength : Yoffset
-                        , Z_HOME_DIR>0 ? Zoffset+Printer::zLength : Zoffset
-                        , IGNORE_COORDINATE, Printer::feedrate);
-
-      Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];// update gcode coords to startheight;
-      Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];// update gcode coords to startheight;
-      Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];// update gcode coords to startheight;
 
 
       Extruder::setTemperatureForExtruder(HAL::eprGetFloat(epr_BackupTemp),HAL::eprGetFloat(epr_BackupExId),0,true);
@@ -362,16 +367,20 @@ void Emergency_Restore_IfNeeded(){                     //restore print if needed
       Extruder::setHeatedBedTemperature(HAL::eprGetFloat(epr_BackupTempB),0);
       #endif
 
-      for(int i=0;i<20;i++)                                                  //restore sd file name
-      {Printer::printName[i]=HAL::eprGetByte(epr_BackupSDfilename+i);}
-
-      sd.setIndex(HAL::eprGetInt32(epr_BackupSDposition));                                      // restore other variables
 
       HAL::eprSetByte(epr_EmergencyByte,0);                            // set emergency byte to 0
 
       Printer::setMenuMode(MENU_MODE_PAUSED+MENU_MODE_SD_PRINTING,true);    //set the printer as it is printing and paused to enable the continue option in the menu
 
+     Printer::moveToReal(HAL::eprGetFloat(epr_Backup_MEMX),HAL::eprGetFloat(epr_Backup_MEMY),HAL::eprGetFloat(epr_Backup_MEMZ),IGNORE_COORDINATE, Printer::feedrate);
 
+      Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];// update gcode coords
+      Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];// update gcode coords
+      Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];// update gcode coords
+
+
+GCode::executeFString(PSTR("M300 S1000 P500 \n M300 S0 P100 \n M300 S1000 P500"));
+GCode::executeFString(PSTR("M117 Continue SD print from menu"));
 
   }
 }
