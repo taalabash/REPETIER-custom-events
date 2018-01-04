@@ -21,6 +21,16 @@
     author of this additional File : ASH / Elias Taalab     thanks to RAyWB
 
 */
+
+
+
+
+
+#define EmergencyOff_PIN     3     //digital input pin
+#define Backup_powerOff_PIN     38     //digital output pin
+#define Emergency_Trigger_on      0    //low or high
+
+
 #ifndef CustomEvents_H
 #define CustomEvents_H
 
@@ -54,6 +64,40 @@ extern bool Custom_MCode(GCode *com);
 #define epr_offsetX3                1260
 #define epr_offsetY3                1264
 #define epr_offsetZ3                1268
+
+
+extern void Custom_100MS();
+extern void Custom_INTIALIZE();
+extern void Emergency_Restore_IfNeeded();
+extern void Emergency_PowerOff_loop();
+
+#undef EVENT_TIMER_100MS
+#define EVENT_TIMER_100MS  {Custom_100MS();}
+
+#undef EVENT_INITIALIZE
+#define EVENT_INITIALIZE  {Custom_INTIALIZE();}
+
+
+
+#define epr_BackupTemp              1274
+#define epr_BackupTempB             1278
+#define epr_BackupFeedrate          1282
+#define epr_BackupSDposition        1286
+#define epr_EmergencyByte           1290
+#define epr_BackupExId              1292
+#define epr_Backup_OffsetX          1296
+#define epr_Backup_OffsetY          1300
+#define epr_Backup_OffsetZ          1304
+#define epr_Backup_MEMX             1308
+#define epr_Backup_MEMY             1312
+#define epr_Backup_MEMZ             1316
+#define epr_Backup_Fanspeed         1320
+
+
+#define epr_BackupSDfilename        1324   //position of the first byte of the sd filename ,this will take positions to ~1340
+
+
+
 
 
 
